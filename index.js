@@ -12,7 +12,10 @@ const app = express()
 const port = process.env.PORT || 4000;
 
 // middleware declare
-app.use(cors())
+app.use(cors({
+    origin: "http://localhost:5173",
+    optionsSuccessStatus:200,
+}))
 app.use(express.json())
 
 // mongodb client declare
@@ -38,6 +41,14 @@ const dbConnect = async () => {
     try {
         client.connect();
         console.log("Database connected successfully.")
+
+        // get user
+        app.get('/user/:email', async (req, res) => {
+            const query = { email: req.params.email };
+            const user = await userCollection.findOne(query);
+            res.send(user)
+        });
+
 
         //Create API for insert user or buyer
         app.post('/users', async (req, res) => {
