@@ -18,14 +18,17 @@ app.use(cors({
 }))
 app.use(express.json());
 
+
+
+
 // token verification
 const verifyJWT = (req, res, next) => {
-    const authorization = req.header.authorization;
+    const authorization = req.headers.authorization;
     if (!authorization) {
         return res.send({message:"No Token"})
     }
-    const token = authorization.split(' ')[1];
-    jwt.verify(token.process.env.ACCESS_KEY_TOKEN, (error, decoded) => {
+    const token = authorization.split(" ")[1];
+    jwt.verify(token, process.env.ACCESS_KEY_TOKEN, (error, decoded) => {
         if (error) {
             return res.send({message:"Invalid Token"})
         }
@@ -36,10 +39,10 @@ const verifyJWT = (req, res, next) => {
 
 // verify seller
 const verifySeller = async (res, req, next) => {
-    const email = req.decoded.email;
+    const email = req.decoded.email
     const query = { email: email }
     const user = await userCollection.findOne(query)
-    if (user?.role !== 'seller') {
+    if (user?.role !== "seller") {
         return res.send({message:"Forbidden access"})
     }
     next();
@@ -92,7 +95,7 @@ const dbConnect = async () => {
 
 
         // Add Product API
-        app.post('/add-products',verifyJWT,verifySeller, async (req, res) => {
+        app.post("/add-products",verifyJWT,verifySeller, async (req, res) => {
             const product = req.body;
             const result = await productCollection.insertOne(product);
             res.send(result);
